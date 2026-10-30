@@ -9,7 +9,7 @@ The control panel is redesigned as a city in the exact style of the reference vi
 
 We decided:
 - **Buildings are built in code** from blocks, with one **style kit per building type** (warehouse, factory, agent office, Town Square, houses, supplier depot), shaped after the video's buildings. Code keeps live-data parts (dock doors, stock, line lights) easy to drive, one consistent style, a tiny download and reviewable diffs.
-- **Vehicles, people, trees and street props come from free CC0 model packs** (no licence or attribution duties), recoloured to the video's palette.
+- **Vehicles (trucks, forklifts and any other type needed), fences around buildings, people, roads with proper marking (if needed, or else do by code), building areas with proper markings if needed, (if needed, or else do by code), stock and its storage trays, trees and street props come from free CC0 model packs** (no licence or attribution duties), recoloured to the video's palette.
 
 Supersedes FE-2.
 

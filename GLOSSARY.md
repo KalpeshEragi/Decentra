@@ -81,10 +81,10 @@ _Avoid_: Partial agreement
 The whole 3D world of the control panel, where every part of the system has its place.
 _Avoid_: Map, scene, world
 
-**District**:
+**Site**:
 One area of the City belonging to one part of the system, such as an agent's office, the factory or the customer neighbourhood.
-_Avoid_: Site, zone, area
+_Avoid_: District, zone (a storage zone is something else), area
 
 **Town Square**:
-The City's central plaza, in the spirit of Times Square, where published events appear and the agents subscribed to them come to read them.
+The City's central plaza, in the spirit of Times Square, where published events appear on billboards and the agents subscribed to them come to read them.
 _Avoid_: Event board, hub
