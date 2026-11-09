@@ -153,6 +153,7 @@ already exists through agents' read modules (IB-2) and the infrastructure tables
 | `GET /observer/orders/{order_ref}` | One order's full story: inquiry, options, plan, pegs, holds/commitments per owner, production orders, shipments |
 | `GET /observer/timeline?after=&case=` | One ordered stream: events, deliveries, negotiation messages, decisions (audit rows), AI calls (`llm_calls`), failed work items |
 | `GET /observer/factory-state?day=` | Stock per item, space per zone, receiving, worker hours per skill, machine hours per work center — for one simulated day |
+| `GET /observer/live` | One snapshot for the control panel (FE-6): clock, KPIs, stock, zones, workers, lines, docks, latest orders, open negotiations, and every customer (id, name, label = name or "Customer N", created time, has an open order = a CONFIRMED Sales order, open order numbers, inquiry count, latest inquiry) and supplier (id, name), both in creation order (FE-33) |
 | `GET /observer/metrics?run=` | Phase 6 measurements (delivery lag, waiting, negotiation duration, AI call times) |
 
 ## 8. Security (prototype)

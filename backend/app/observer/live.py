@@ -14,11 +14,13 @@ from app.models.core import Item
 from app.negotiation.models import Session as NegotiationSession
 from app.observability.models import LlmCall
 from app.planning_agent import reads as planning
+from app.sales_agent import reads as sales
 from app.simulation.clock import current_hour, get_clock, shift
 from app.simulation.models import Run
 from app.simulation import runner
 from app.simulation.runner import waiting
 from app.simulation.settings import setting
+from app.supplier_service import service as supplier_service
 from app.warehouse_agent import reads as warehouse
 
 ACTIVE = ("RELEASED", "STARTED", "FIRM")
@@ -73,6 +75,10 @@ def live(db: Session) -> dict:
              "resource_type": s.resource_type, "status": s.status, "round": s.round}
             for s in db.scalars(select(NegotiationSession).where(NegotiationSession.status.in_(
                 ("NEGOTIATING", "AGREEMENT_PROPOSED"))).order_by(NegotiationSession.created_at).limit(100))],
+        "customers": [{**c, "label": (c["name"] or "").strip() or f"Customer {number}"}  # creation order (FE-33)
+                      for number, c in enumerate(sales.customers(db), start=1)],
+        "suppliers": [{"id": str(s.id), "name": s.name}  # every supplier, creation order (FE-33)
+                      for s in supplier_service.all_suppliers(db)],
     }
 
 

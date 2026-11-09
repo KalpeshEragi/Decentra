@@ -69,6 +69,11 @@ export type Live = {
   };
   orders: { demand_id: string; order_number: string | null; sku: string | null; quantity: string; status: string; committed_day: string | null; requested_day: string }[];
   negotiations_open: { session_id: string; case_id: string; starter: string; owner: string; resource_type: string; status: string; round: number }[];
+  // FE-33: every customer and supplier, in creation order (stable: houses and depots are given out in this order)
+  customers: { id: string; name: string | null; label: string; created_at: string; has_open_order: boolean;  // label: name, or "Customer N"
+    open_orders: string[]; inquiry_count: number;
+    latest_inquiry: { id: string; stage: string; created_at: string; product: string | null; quantity: string | null } | null }[];
+  suppliers: { id: string; name: string }[];
 };
 
 export type TimelineItem = {

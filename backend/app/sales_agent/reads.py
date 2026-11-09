@@ -2,10 +2,10 @@
 
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.sales_agent.models import Inquiry, Message, Option, Order, Product
+from app.sales_agent.models import Conversation, Customer, Inquiry, Message, Option, Order, Product
 
 
 def product_sku(db: Session, product_id: str) -> str | None:
@@ -99,3 +99,28 @@ def chat_inquiries(db: Session, phone_prefix: str) -> list[dict]:
                       "options": [{"letter": "ABCDEFG"[i], "kind": o.kind, "quantity": str(o.quantity),
                                    "delivery_date": o.delivery_date.isoformat()} for i, o in enumerate(offered)]})
     return found
+
+
+def customers(db: Session) -> list[dict]:
+    """Every customer in creation order (stable: the City gives out houses in this order, FE-32, FE-46), with its open
+    orders (CONFIRMED: not cancelled and not yet delivered) and its inquiries. Inquiries are found through the
+    conversation: a first-time customer's inquiry has no customer until the first order is confirmed."""
+    open_orders: dict = {}
+    for customer_id, number in db.execute(select(Order.customer_id, Order.order_number).where(Order.status == "CONFIRMED")
+                                          .order_by(Order.created_at)):
+        open_orders.setdefault(customer_id, []).append(number)
+    owner = Conversation.customer_id
+    counts = dict(db.execute(select(owner, func.count(Inquiry.id)).join(Inquiry, Inquiry.conversation_id == Conversation.id)
+                             .where(owner.is_not(None)).group_by(owner)).all())
+    latest = {customer_id: {"id": str(inquiry.id), "stage": inquiry.stage, "created_at": inquiry.created_at.isoformat(),
+                            "product": product,
+                            "quantity": str(inquiry.quantity) if inquiry.quantity is not None else None}
+              for customer_id, inquiry, product in db.execute(
+                  select(owner, Inquiry, Product.name).distinct(owner)
+                  .join(Inquiry, Inquiry.conversation_id == Conversation.id)
+                  .outerjoin(Product, Product.id == Inquiry.product_id)
+                  .where(owner.is_not(None)).order_by(owner, Inquiry.created_at.desc(), Inquiry.id.desc()))}
+    return [{"id": str(c.id), "name": c.name, "created_at": c.created_at.isoformat(),
+             "has_open_order": c.id in open_orders, "open_orders": open_orders.get(c.id, []),
+             "inquiry_count": counts.get(c.id, 0), "latest_inquiry": latest.get(c.id)}
+            for c in db.scalars(select(Customer).order_by(Customer.created_at, Customer.id))]

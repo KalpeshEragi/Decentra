@@ -5,9 +5,10 @@ data only through `service.py`, never these classes.
 """
 
 import uuid
+from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import Boolean, ForeignKey, Integer, MetaData, Numeric, String, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, MetaData, Numeric, String, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -41,6 +42,7 @@ class Supplier(SupplierServiceBase):
     contact_info: Mapped[dict | None] = mapped_column(JSONB)
     rating_data: Mapped[dict | None] = mapped_column(JSONB)  # not used in ranking
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())  # migration 024
 
 
 class SupplierItem(SupplierServiceBase):

@@ -54,6 +54,13 @@ def get_suppliers(db: Session, supplier_ids: list[uuid.UUID]) -> dict[uuid.UUID,
     return {s.id: SupplierRecord(s.id, s.name, s.is_active) for s in rows}
 
 
+def all_suppliers(db: Session) -> list[SupplierRecord]:
+    """Every supplier, inactive ones included, in creation order (ties by name): a stable order, so the City's depot
+    plots never move (FE-27, FE-44)."""
+    return [SupplierRecord(s.id, s.name, s.is_active)
+            for s in db.scalars(select(Supplier).order_by(Supplier.created_at, Supplier.name))]
+
+
 def supplier_items_for(db: Session, item_id: uuid.UUID) -> list[SupplierItemRecord]:
     rows = db.execute(
         select(SupplierItem, Supplier)

@@ -243,6 +243,7 @@ The Supplier Service's catalogue of procurable items. In standalone mode an item
 | `contact_info` | JSONB | | Supplier contact information |
 | `rating_data` | JSONB | | Supplier evaluation data (not used in ranking) |
 | `is_active` | BOOLEAN | NOT NULL, DEFAULT TRUE | Inactive suppliers are never selected |
+| `created_at` | TIMESTAMPTZ | NOT NULL, DEFAULT now() | Creation time; with `name`, the stable order of the City's depots (FE-27, migration 024) |
 
 ### `supplier_service.supplier_items`
 
