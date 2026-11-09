@@ -37,7 +37,7 @@ id (PK) · conversation_id (FK) · customer_id (FK, may be empty) · stage (see 
 id (PK) · inquiry_id (FK) · kind (REQUESTED, LATER_DATE, LESS_QUANTITY, PART_NOW_REST_LATER later) · quantity · delivery_date · valid_until · reason_code · status (OFFERED, SELECTED, EXPIRED, RELEASED)
 
 ### orders (confirmed customer orders only)
-id (PK) · order_number (unique) · customer_id (FK) · inquiry_id (FK) · option_id (FK) · product_id (FK) · quantity · delivery_date · status (CONFIRMED now; later statuses come from outside) · payment_status (ASSUMED_PAID for the prototype) · confirmed_at
+id (PK) · order_number (unique) · customer_id (FK) · inquiry_id (FK) · option_id (FK) · product_id (FK) · quantity · delivery_date · status (CONFIRMED; CANCELLED by the customer; DELIVERED once all of it is shipped, from the Warehouse's `ShipmentDispatched`) · quantity_shipped (sum of `ShipmentDispatched`, migration 023) · payment_status (ASSUMED_PAID for the prototype) · confirmed_at
 
 ### customer_memory (preferences and insights in one table)
 id (PK) · customer_id (FK) · kind (PREFERENCE or INSIGHT) · type (from an allowed list, for example PREFERS_WHATSAPP_UPDATES, WANTS_EARLY_DATE_CHANGE_NOTICE, FREQUENT_PRODUCT) · value (short detail, JSON) · scope (GENERAL or THIS_ORDER) · inquiry_id (FK, only if scope is THIS_ORDER) · source (STATED = customer said it, INFERRED = our rule found it) · strength (LOW, MEDIUM, HIGH; inferred only) · status (ACTIVE, SUPERSEDED, RETIRED) · evidence (JSON list of what supports it, e.g. message 12, order 3) · created_at · updated_at

@@ -159,7 +159,7 @@ reaction to document. One fact = one event name.
 | `MaterialIssuedToProduction` | Warehouse | Inventory, Planning | order, item, quantity | Inventory reduces stock and reservation |
 | `FinishedGoodsStored` | Warehouse | Inventory, Planning, Sales | order, item, quantity, zone | Inventory raises finished-goods on-hand; Planning marks the order ready to ship (IN-2) |
 | `StorageCapacityChanged` | Warehouse | Planning, Purchasing | zone, old and new capacity, from date | Re-check affected receipts |
-| `ShipmentDispatched` | Warehouse | Sales, Inventory, Planning | order, quantity, date | Sales informs customer; Inventory reduces finished goods |
+| `ShipmentDispatched` | Warehouse | Sales, Inventory, Planning | order, quantity, date | Sales counts the shipped quantity, marks its order DELIVERED when all of it has left, and tells chat customers what shipped; Inventory reduces finished goods |
 | `WorkforceCommitted` | HR | Planning | order or task, hours per day, dates, skill | Planning marks labor secured |
 | `WorkforceCapacityChanged` | HR | Planning | skill, date range, old and new hours | Re-check schedules that use those hours |
 | `SimulatedDayStarted` | Simulator clock (infrastructure, PB-3) | Planning, Inventory, Sales, Warehouse, HR, Purchasing (daily routines WB-3, HB-3; Purchasing's adapter follows open requests, PI-3) | date | Planning releases due production orders; Inventory expires holds; Sales checks offer expiry |

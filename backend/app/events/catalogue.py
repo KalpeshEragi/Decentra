@@ -423,7 +423,8 @@ STORY: dict[str, tuple[str, tuple[str, ...], tuple[str, ...]]] = {
         "A receiving, shipping or storage capacity changed. New plans and deliveries are made around it; what was "
         "already committed stays.", ("Trigger WAREHOUSE_CAPACITY",), ()),
     "ShipmentDispatched": (
-        "An order's goods left the factory: Inventory's stock goes down, Planning counts the order as delivered.",
+        "An order's goods left the factory: Inventory's stock goes down, Planning counts the order as delivered, "
+        "Sales marks the customer's order DELIVERED once all of it has left.",
         ("SimulatedDayStarted",), ("PlanRevised",)),
     "WorkforceCommitted": (
         "HR committed worker-hours of a skill to a production order.",

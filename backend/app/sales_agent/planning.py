@@ -275,6 +275,15 @@ def order_confirmed_reply(order_number: str, quantity, delivery_date: date, prod
             f"{delivery_date.isoformat()}. The payment is assumed to be made (prototype).")
 
 
+def shipped_reply(order_number: str, shipped, quantity_shipped, quantity, product_name: str, day: str) -> str:
+    """The Warehouse shipped goods of a confirmed order (`ShipmentDispatched`). Repeats only what was shipped."""
+    if quantity_shipped >= quantity:
+        return (f"Your order {order_number} has shipped in full: {_number(quantity)} x {product_name}. The last goods "
+                f"left our factory on {day}.")
+    return (f"Part of your order {order_number} has shipped: {_number(shipped)} x {product_name} left our factory on "
+            f"{day}. So far {_number(quantity_shipped)} of {_number(quantity)} have shipped; the rest is still to come.")
+
+
 def declined_reply() -> str:
     return "No problem, I have not placed any order. Message me any time if you would like to order something."
 

@@ -146,7 +146,8 @@ class Order(SalesAgentBase):
     product_id: Mapped[uuid.UUID] = foreign_key("products.id", nullable=False)
     quantity: Mapped[Decimal] = mapped_column(Numeric)
     delivery_date: Mapped[date] = mapped_column(Date)
-    status: Mapped[str] = mapped_column(String, default="CONFIRMED")
+    status: Mapped[str] = mapped_column(String, default="CONFIRMED")  # CONFIRMED, CANCELLED, DELIVERED
+    quantity_shipped: Mapped[Decimal] = mapped_column(Numeric, default=0)  # from ShipmentDispatched (migration 023)
     payment_status: Mapped[str] = mapped_column(String, default="ASSUMED_PAID")  # prototype: payment is assumed
     confirmed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = created_at()
