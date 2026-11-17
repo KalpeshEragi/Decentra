@@ -6,17 +6,18 @@ only reads the observer doors and calls the simulation doors (FE-6); it decides 
 
 | Path | Purpose |
 | --- | --- |
-| `app/page.tsx` | The page: top bar, the 3D factory with floating cards, the agent conversation sidebar. |
 | `components/TopBar.tsx` | Simulated day, Quiet / Working, why Play paused, the AI on/off switch (`ai_enabled`), Next day, Play / Pause, scenario picker and start, Customers, Disruption, finish run (opens its report) or Reports. |
 | `components/NegotiationThread.tsx` | One negotiation as one card: the two agents, what and for which order (`order_label`), its status chip, and each step written by code from the message type and terms; the AI's sentence only under "AI wording". |
 | `components/NewOrderPanel.tsx` | **＋ New order** (manual demo): product, quantity and deadline, sent as one `NEW_ORDER` trigger; the agents plan it at once, even while the clock is paused. |
 | `components/CustomersPanel.tsx` | The simulated customers (`POST /simulation/settings`): new requests per day, structured or chat mode, quantity and lead-day ranges. |
 | `components/Disruptions.tsx` | Fire a simulator trigger now (`POST /simulation/triggers`): worker absent, supplier delay, customer cancels or changes quantity, new customer request. The agents decide how to react. |
 | `components/RunReport.tsx` | A finished run's report: orders, completed, on time, plans at risk, orders by status, triggers, AI calls, events published. |
-| `components/scene/FactoryScene.tsx` | The living factory: materials warehouse, production hall (SMT and assembly lines with HR's workers; an absent worker is a faded red figure with a pin), finished-goods building, stock yards, docks (a red pin while a supplier delivery is late). Stock stacks follow stock on hand; lines glow while an order there has started; trucks and forklifts move only when the matching event arrives (FE-3). Click anything for its detail. |
+| `components/scene/FactoryScene.tsx` | The classic panel's living factory (`/classic`): materials warehouse, production hall (SMT and assembly lines with HR's workers; an absent worker is a faded red figure with a pin), finished-goods building, stock yards, docks (a red pin while a supplier delivery is late). Stock stacks follow stock on hand; lines glow while an order there has started; trucks and forklifts move only when the matching event arrives (FE-3). Click anything for its detail. |
 | `components/scene/parts.tsx` | Low-poly models built from simple shapes (FE-2): building, truck, forklift, pallet, machine, worker, tree, map pin. |
 | `components/AgentChat.tsx` | The agent conversation (FE-4), one window per order: an **All** tab (the whole factory feed) and a tab per order with its own **Customer ↔ Sales** chat and its own **Agent negotiation** channel (that order's negotiation messages and events, matched by the `refs` of `GET /observer/orders/{ref}`); filter (all / negotiations / events); minimise or widen. |
 | `components/Overlays.tsx` | The detail card of what was clicked, disruptions and reactions (the last triggers and risk / repair events), order tracking (request → shipped), docks / lines / open negotiations. |
+| `app/page.tsx` + `components/city/` | The MRPII City, the control panel at `/` (FE-51; `/city` forwards there); see `components/city/README.md`. |
+| `app/classic/page.tsx` | The classic panel at `/classic`, kept with its 3D scene (`components/scene/`) until the developer approves removing it (FE-51). |
 | `app/rules/page.tsx` | Rule editor (`/rules`, RE-1, top-bar button ⚙ Rules): owners on the left (General, Sales, Planning, Inventory, Purchasing, Warehouse, HR), each rule as a card (what it changes, value and unit, default, allowed range, save with an optional note, reset, personalised badge), the change history. Rules not used by any code yet are shown greyed. |
 | `app/events/page.tsx` | Event manager page (`/events`, EM-1/EM-2/EM-4, top-bar button 📡 Events): agents → the agent's events (publishes / receives / listed) → the event's story (meaning, caused by → publisher → leads to, what each receiver does, payload, live deliveries, "what breaks if I remove it"); the event manager assistant chat beside it (grounded advice on adding, changing, removing events). Read-only. |
 | `components/cockpit/Cockpit.tsx` | Status strip over the town: Running / Paused / Agents working / Handling disruption, day, active and at-risk orders, completed, stock; opens the two story views. |
@@ -28,6 +29,7 @@ only reads the observer doors and calls the simulation doors (FE-6); it decides 
 | `lib/insight.ts` | Read-only derivations for the cockpit from the live snapshot and the timeline: agent status, disruptions and what followed, plan comparison. Decides nothing and invents nothing. |
 | `lib/api.ts` | Client for the backend (through `/backend`, forwarded by `next.config.mjs`) and the shapes it reads. |
 | `lib/useLive.ts` | Polls `GET /observer/live` and the timeline cursor, one poll at a time. |
+| `lib/city/` | The City's pure logic (see its README): layout growth, road routes, walks, feed lines, detail views. |
 | `lib/agents.ts` | The six agents' names and colours; plain-words lines for messages and events. |
 
 ## Run
@@ -40,3 +42,15 @@ In the panel: pick a scenario, **Start scenario**, then **Next day** or **Play**
 
 With the database far away (Neon, another continent) a refresh takes a few seconds; the panel waits for one answer
 before asking again.
+
+## City models and effects
+
+The City's models are CC0 downloads from grab3d.com, shrunk by `npm run models` (`scripts/models.mjs`: simplified,
+WebP textures, meshopt compression) into `public/models/`; every model is listed in `public/models/LICENSES.md`
+(ADR-004, FE-50). The night bloom uses `@react-three/postprocessing` 3.0.4 (pinned: 3.1+ needs
+`@react-three/fiber` 9.7+, FE-49). `?fps=1` shows the fps counter (whole-frame draws and triangles); `?customers=N`
+previews N made-up houses; `?time=NIGHT` (or MORNING, AFTERNOON, EVENING, MIDNIGHT) fixes the time of day.
+
+## Tests
+
+`npm test` (Vitest, FE-48) runs the unit tests of the pure logic in `lib/` (`*.test.ts`); `npx tsc --noEmit` checks types.
