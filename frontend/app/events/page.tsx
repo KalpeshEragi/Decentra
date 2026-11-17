@@ -51,7 +51,7 @@ export default function EventsPage() {
   return (
     <div className="em">
       <header className="em-head">
-        <Link href="/" className="btn">‹ Factory</Link>
+        <Link href="/" className="btn">‹ City</Link>
         <h2>📡 Event manager</h2>
         {data && <span className={`badge big ${problems.length ? "red" : "green"}`}>
           {problems.length ? `${problems.length} wiring problem${problems.length > 1 ? "s" : ""}` : "All events wired"}</span>}
