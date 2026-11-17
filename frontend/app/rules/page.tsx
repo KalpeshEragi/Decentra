@@ -47,7 +47,7 @@ export default function RulesPage() {
   return (
     <div className="em rules">
       <header className="em-head">
-        <Link href="/" className="btn">‹ Factory</Link>
+        <Link href="/" className="btn">‹ City</Link>
         <h2>⚙ Rules</h2>
         <span className="muted">The factory's business rules. Your changes apply from the next decision and survive scenario restarts.</span>
         <div className="spacer" />
