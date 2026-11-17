@@ -21,5 +21,8 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    # The quote sessions' messages first: they reference the sessions
+    op.execute("DELETE FROM negotiation.messages WHERE session_id IN "
+               "(SELECT id FROM negotiation.sessions WHERE status IN ('QUOTING', 'QUOTED'))")
     op.execute("DELETE FROM negotiation.sessions WHERE status IN ('QUOTING', 'QUOTED')")
     _statuses(OLD)
