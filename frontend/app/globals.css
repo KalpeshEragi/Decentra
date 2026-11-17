@@ -206,7 +206,7 @@ select.btn { padding-right: 8px; }
 .story-head > div:first-child { flex: 1; }
 .story-head h3 { margin: 0 0 4px; font-size: 17px; }
 .muted { color: var(--muted); }
-.rounds { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.rounds { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; max-height: 76px; overflow-y: auto; flex-shrink: 0; }
 .rounds .tab { display: inline-flex; gap: 6px; align-items: center; }
 .story-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: 1.25fr 1fr 0.9fr; gap: 14px; }
 .story-grid section { min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
@@ -263,7 +263,7 @@ select.btn { padding-right: 8px; }
 .feed li.trigger { background: var(--amber-soft); }
 .feed li.risk { background: var(--red-soft); }
 .disrupt { position: relative; }
-.disrupt .menu { position: absolute; right: 0; top: 40px; z-index: 8; width: 340px; padding: 6px; display: flex;
+.disrupt .menu { position: absolute; right: 0; top: 40px; z-index: 8; width: 340px; padding: 6px; display: flex; max-height: min(360px, 55vh); overflow-y: auto;
   flex-direction: column; gap: 2px; }
 .menu-item { text-align: left; border: 0; background: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; font: inherit; }
 .menu-item:hover { background: var(--amber-soft); }
