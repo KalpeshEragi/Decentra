@@ -1,10 +1,14 @@
 """The simulated day cycle and Play / Pause (demo.md §6, DM-1). Infrastructure: it moves time and plays the outside
 world; it never decides anything for an agent.
 
-One day:  advance the clock (`SimulatedDayStarted`) and fire the triggers scheduled for that day -> simulated
-customers send today's requests -> wait until quiet (holds expired, deliveries received, kits issued, requests
-planned, ...) -> customers decide on Planning's answers -> wait until quiet -> the shop floor reports today's
-progress -> wait until quiet again.
+One day:  customers answer the offers still waiting for them (yesterday's holds still last) -> advance the clock
+(`SimulatedDayStarted`) and fire the triggers scheduled for that day -> simulated customers send today's requests ->
+wait until quiet (holds expired, deliveries received, kits issued, requests planned, ...) -> customers decide on
+Planning's answers -> wait until quiet -> the shop floor reports today's progress -> wait until quiet again. Customers
+also answer offers after every worked hour, the same day. Both because a hold lasts until the next day starts (NG-2):
+an offer must be answered before the clock moves to a new day, or its holds are gone and the accepted option can no
+longer be committed (`PlanCommitFailed`, UNKNOWN_OPTION). An order added while the day is over (MANUAL right after its
+start) is answered by the first step of the next +1h / +1d / Play.
 
 Quiet = no PENDING or RUNNING item in any work queue (FAILED items do not count; they wait for a person). A day that
 does not become quiet within `quiet_limit_seconds` (real time) pauses the run and reports what is still waiting.
@@ -96,7 +100,7 @@ def run_one_day(session_factory: Callable[[], Session], settle: Settle | None = 
         result["shop_floor"] = shop_floor.report_day(db, today(db))
         get_clock(db, lock=True).current_hour = shift(db)[1]  # the whole shift has been worked
         db.commit()
-    return {**result, "waiting": settle()}
+    return _customers_decide(session_factory, settle, result)
 
 
 def run_one_hour(session_factory: Callable[[], Session], settle: Settle | None = None) -> dict:
@@ -114,31 +118,43 @@ def run_one_hour(session_factory: Callable[[], Session], settle: Settle | None =
         advance_hour(db)
         result.update(day=today(db).isoformat(), hour=f"{hour:02d}:00-{hour + 1:02d}:00")
         db.commit()
-    return {**result, "waiting": settle()}
+    return _customers_decide(session_factory, settle, result)
 
 
 def _start_day(session_factory: Callable[[], Session], settle: Settle) -> dict:
-    """A new simulated day up to the start of work: clock + due triggers, customers' requests and decisions."""
+    """A new simulated day up to the start of work: first the customers answer what is still waiting for them (the
+    holds behind those offers expire when the new day starts, NG-2), then clock + due triggers, customers' requests
+    and decisions."""
+    before = _customers_decide(session_factory, settle, {"decisions": []})
+    if before.get("waiting"):
+        return {"customers": [], "shop_floor": [], **before}
     with session_factory() as db:
         day = next_day(db)
         db.commit()
     with session_factory() as db:  # after the new day is committed: a trigger may call an agent's door
         triggers.fire_due(db, day)
         db.commit()
-    result = {"day": day.isoformat(), "customers": [], "decisions": [], "shop_floor": []}
+    result = {"day": day.isoformat(), "customers": [], "decisions": before["decisions"], "shop_floor": []}
     with session_factory() as db:
         result["customers"] = customers.place_orders(db, day)
+    return _customers_decide(session_factory, settle, result)
+
+
+def _customers_decide(session_factory: Callable[[], Session], settle: Settle, result: dict) -> dict:
+    """Wait until quiet, then let the simulated customers answer every offer waiting for them (a request made
+    mid-day is answered the same day, while its holds still last). Returns `result` with the decisions and what is
+    still waiting."""
     if left := settle():
         return {**result, "waiting": left}
     for _ in range(3):  # a chat customer may need a few turns (a letter, then "yes"); structured needs one
         with session_factory() as db:
             decided = customers.answer_options(db)
-        result["decisions"] += decided
+        result["decisions"] = result.get("decisions", []) + decided
         if left := settle():
             return {**result, "waiting": left}
         if not decided:
             break
-    return result
+    return {**result, "waiting": {}}
 
 
 # -- Play / Pause (one background thread; the clock row holds the status) ----------------------------------------------
