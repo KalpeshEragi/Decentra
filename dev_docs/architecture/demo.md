@@ -105,7 +105,9 @@ reason (shown on the panel) instead of moving the clock through empty days. Next
 
 Real-time limits (negotiation response timeouts, NG-O2; leases; retries) only protect against stuck work. Because
 Play waits for quiet, no business step is ever cut off by a day change; business deadlines (holds, offers) are counted
-in simulated days.
+in simulated days. Before the clock moves to a new day, the simulated customers answer every offer still waiting for
+them: a hold lasts until the next day starts, so an offer answered only after the day change could no longer be
+committed (seen 2026-11-16: an order added in MANUAL while the day was over ended in `PlanCommitFailed`).
 
 ## 7. Triggers
 
