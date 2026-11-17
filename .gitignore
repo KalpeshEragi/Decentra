@@ -18,9 +18,10 @@ docs/agents/
 
 # Rough Documents
 answers*.md
+NOTES.md
 
 # Specs
 .scratch/
 
 # Report
-report/
+documentation/
