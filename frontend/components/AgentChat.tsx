@@ -13,10 +13,11 @@ type Filter = "all" | "negotiations" | "events";
 type Channel = "customer" | "negotiation";
 const QUIET_EVENTS = new Set(["SimulatedDayStarted"]);
 
-export function AgentChat({ live, items, focusOrder, onFocusOrder, onOpenStory, names }: {
+export function AgentChat({ live, items, focusOrder, onFocusOrder, onOpenStory, names, onClose }: {
   live: Live | null; items: TimelineItem[]; focusOrder: string | null; onFocusOrder: (demandId: string | null) => void;
   onOpenStory: (demandId: string) => void;
   names: Record<string, string>;  // item id -> SKU, to show names instead of ids
+  onClose?: () => void;  // shown as a view the host opens and closes (the City), instead of a sidebar to minimise/widen
 }) {
   const [open, setOpen] = useState(true);
   const [wide, setWide] = useState(false);
@@ -45,12 +46,14 @@ export function AgentChat({ live, items, focusOrder, onFocusOrder, onOpenStory, 
   return (
     <aside className={`chat ${open ? "" : "closed"} ${wide ? "wide" : ""}`}>
       <div className="chat-head">
-        <button className="btn" title={open ? "Minimise" : "Open the agent conversation"} onClick={() => setOpen(!open)}>
+        {!onClose && <button className="btn" title={open ? "Minimise" : "Open the agent conversation"} onClick={() => setOpen(!open)}>
           {open ? "›" : "💬"}
-        </button>
+        </button>}
         <h4>{focusOrder ? `Order ${orderLabel(orders.find((o) => o.demand_id === focusOrder), focusOrder)}` : "Agent conversation"}</h4>
         {focusOrder && <button className="btn" title="The whole story of this order" onClick={() => onOpenStory(focusOrder)}>📖 Story</button>}
-        <button className="btn" title={wide ? "Narrow" : "Widen"} onClick={() => setWide(!wide)}>{wide ? "⇥" : "⇤"}</button>
+        {onClose
+          ? <button className="btn" title="Close" aria-label="Close" onClick={onClose}>✕</button>
+          : <button className="btn" title={wide ? "Narrow" : "Widen"} onClick={() => setWide(!wide)}>{wide ? "⇥" : "⇤"}</button>}
       </div>
       <div className="chat-orders">
         <button className={`tab ${focusOrder ? "" : "on"}`} onClick={() => onFocusOrder(null)}>All</button>
