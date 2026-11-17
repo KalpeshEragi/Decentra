@@ -13,6 +13,9 @@ export function useLive() {
   const [live, setLive] = useState<Live | null>(null);
   const [items, setItems] = useState<TimelineItem[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [updatedAt, setUpdatedAt] = useState<number | null>(null);  // when the last good snapshot arrived
+  // true once the timeline backlog is read (a page that was not full): later items are news, earlier ones are history
+  const [caughtUp, setCaughtUp] = useState(false);
   const cursor = useRef<string | null>(null);
   const busy = useRef(false);
 
@@ -28,11 +31,13 @@ export function useLive() {
         ),
       ]);
       setLive(snapshot);
+      setUpdatedAt(Date.now());
       if (page.items.length) {
         cursor.current = page.next;
         setItems((old) => [...old, ...page.items].slice(-MAX_ITEMS));
       }
       setError(null);
+      if (page.items.length < FULL_PAGE) setCaughtUp(true);
       return page.items.length >= FULL_PAGE;
     } catch (e) {
       setError(e instanceof ApiError ? e.message : String(e));
@@ -56,7 +61,8 @@ export function useLive() {
   const reset = useCallback(() => {
     cursor.current = null;
     setItems([]);
+    setCaughtUp(false);
   }, []);
 
-  return { live, items, error, refresh: poll, reset };
+  return { live, items, error, updatedAt, caughtUp, refresh: poll, reset };
 }
