@@ -11,8 +11,9 @@ from app.core.errors import AppError, ErrorCode
 
 
 def make_engine(url: str) -> Engine:
-    # pool_pre_ping: Neon serverless closes idle connections.
-    return create_engine(url, pool_pre_ping=True)
+    # pool_pre_ping: Neon serverless closes idle connections. connect_timeout: without it a connect attempt during a
+    # network or DNS hiccup can hang forever, holding a pool slot, until every request waits behind it.
+    return create_engine(url, pool_pre_ping=True, connect_args={"connect_timeout": 10})
 
 
 @lru_cache
