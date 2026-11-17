@@ -73,3 +73,25 @@ def test_manual_scenario_starts_empty_and_plans_orders_added_while_paused(sessio
         demands = plans.demands(db)
     assert sorted(float(d["quantity"]) for d in demands) == [40, 60]
     assert all(d["status"] not in ("PLANNING", "NEW") for d in demands)  # Planning answered both while paused
+
+
+def test_an_order_added_while_the_day_is_over_is_answered_before_the_new_day_and_committed(session_factory, pump, factory):
+    """Holds last until the next day starts (NG-2). MANUAL starts with its first day already over, so an order added
+    then gets its answer from the next step, and that step starts a new day: the customer must answer before the
+    clock moves, or the holds behind the offer have expired and the accepted option cannot be committed."""
+    client = factory["client"]
+    assert client.post("/simulation/scenarios/MANUAL/start", json={"seed": 1}, headers=HEADERS).status_code == 201
+    fired = client.post("/simulation/triggers", headers=HEADERS, json={
+        "kind": "NEW_ORDER", "params": {"product_sku": "PHONE-P", "quantity": 20, "lead_days": 10}})
+    assert fired.json()["status"] == "DONE", fired.text
+    pump()
+
+    def settle() -> dict:
+        pump()
+        return {}
+
+    step = runner.run_one_hour(session_factory, settle)
+    assert step["decisions"] and step["waiting"] == {}
+    with session_factory() as db:
+        (demand,) = plans.demands(db)
+    assert demand["status"] == "COMMITTED", demand
