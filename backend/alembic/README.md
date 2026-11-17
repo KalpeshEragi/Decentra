@@ -17,8 +17,8 @@ Run from `backend/`:
 
 ```bash
 alembic upgrade head
-alembic downgrade base
 ```
 
-`downgrade base` drops every table and schema created here. Load the X1 baseline afterwards with `python -m app.data.seed_data`
-(this also resets an existing database to the baseline).
+Downgrades work back to `006` only: `006` retired the old tables and cannot restore them, so `downgrade base` fails.
+To start from an empty database, drop the app schemas and `public.alembic_version`, then run `upgrade head`.
+Starting a scenario in the panel builds the demo factory (`factory-a`) by itself.
