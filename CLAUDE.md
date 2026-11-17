@@ -155,6 +155,7 @@ Open decisions live in `dev_docs/DECISIONS.md`. Do not silently choose or replac
 
 **Git:** Claude never commits, pushes, merges or rewrites history unless asked for that exact operation.
 The developer reviews and runs `git add` / `commit` / `push`. Branches are short-lived, from `master`, merged by PR.
+Do not add your name while committing/pushing/making PR cause that's visible on GitHub and I don't want that.
 
 **Decisions:** never silently change an agreed decision. If you find a flaw, explain it and recommend a fix first.
 
